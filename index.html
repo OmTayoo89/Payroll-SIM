@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll - Final Rigid Payroll & Executive System</title>
+    <title>Payroll System - Narbara Enterprise</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -20,37 +20,31 @@
 
         body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-light); margin: 0; color: #333; }
 
-        /* Navigation */
         .navbar { background: var(--narbara-blue); display: flex; padding: 0 50px; gap: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
         .nav-brand { color: white; font-size: 24px; font-weight: 800; display: flex; align-items: center; margin-right: 20px; letter-spacing: 1.5px; }
         .nav-item { color: rgba(255,255,255,0.7); padding: 25px 15px; cursor: pointer; font-weight: 600; transition: 0.3s; border-bottom: 4px solid transparent; }
         .nav-item.active { color: white; border-bottom: 4px solid var(--narbara-gold); background: rgba(255,255,255,0.05); }
 
-        /* Layout */
         .container { padding: 40px 50px; display: none; max-width: 1600px; margin: auto; }
         .container.active { display: block; }
         .grid-main { display: grid; grid-template-columns: 500px 1fr; gap: 40px; align-items: start; }
         .card { background: var(--white); border-radius: 16px; padding: 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); margin-bottom: 35px; }
         h2 { color: var(--narbara-blue); font-size: 18px; margin-top: 0; margin-bottom: 25px; border-left: 6px solid var(--narbara-gold); padding-left: 15px; text-transform: uppercase; }
 
-        /* Form Styling */
         .form-group { margin-bottom: 20px; }
         label { display: block; font-size: 11px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 10px; font-size: 14px; box-sizing: border-box; }
         input:focus { border-color: var(--narbara-gold); outline: none; }
 
-        /* Buttons */
         .btn { padding: 15px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 13px; text-transform: uppercase; }
         .btn-primary { background: var(--narbara-blue); color: white; width: 100%; }
         .btn-pdf { background: #e74c3c; color: white; margin-top: 10px; }
         .btn-outline-pdf { background: none; border: 1.5px solid #e74c3c; color: #e74c3c; padding: 6px 12px; font-size: 11px; border-radius: 6px; }
 
-        /* Table */
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8fafc; color: var(--narbara-blue); padding: 15px; text-align: left; font-size: 11px; border-bottom: 2px solid #eee; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
 
-        /* 9-Box Matrix UI */
         .matrix-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #dfe6e9; padding: 10px; border-radius: 15px; }
         .matrix-box { background: white; height: 100px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 5px; font-size: 10px; position: relative; border: 2px solid #eee; }
         .matrix-box b { color: var(--narbara-blue); font-size: 11px; margin-bottom: 3px; display: block; line-height: 1.2; }
@@ -74,7 +68,7 @@
         <div class="sidebar">
             <div class="card">
                 <h2>Identitas & Divisi</h2>
-                <div class="form-group"><label>Nama Lengkap</label><input type="text" id="in_nama" placeholder="Pria Ngawi"></div>
+                <div class="form-group"><label>Nama Lengkap</label><input type="text" id="in_nama" placeholder="Contoh: Budi"></div>
                 <div class="form-group"><label>NPWP</label><input type="text" id="in_npwp" placeholder="00.000.000.0-000.000"></div>
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px">
                     <div class="form-group"><label>Divisi (Manual)</label><input type="text" id="in_divisi" placeholder="Contoh: Finance"></div>
@@ -154,34 +148,34 @@
         <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:20px; align-items:end">
             <div><label>Total Revenue Perusahaan</label><input type="number" id="ex_rev" value="1000000000"></div>
             <div><label>Target Budget Ratio (%)</label><input type="number" id="ex_target" value="20"></div>
-            <button class="btn btn-primary" onclick="renderExecutive()">ANALYZE NOW</button>
+            <button class="btn btn-primary" onclick="renderExecutive()">JALANKAN ANALITIK</button>
         </div>
     </div>
 
     <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:20px; margin-bottom:30px">
-        <div class="stat-card"><label>Total Payroll Cost</label><div id="st_cost" style="font-weight:800; color:var(--narbara-blue)">Rp 0</div></div>
-        <div class="stat-card"><label>Payroll Ratio</label><div id="st_ratio" style="font-weight:800;">0%</div></div>
-        <div class="stat-card"><label>Avg KPI</label><div id="st_kpi" style="font-weight:800; color:var(--success)">0</div></div>
-        <div class="stat-card"><label>ROI Factor</label><div id="st_roi" style="font-weight:800;">0x</div></div>
+        <div class="stat-card"><label>Total Payroll Expense</label><div id="st_cost" style="font-weight:800; color:var(--narbara-blue)">Rp 0</div></div>
+        <div class="stat-card"><label>Payroll to Revenue Ratio</label><div id="st_ratio" style="font-weight:800;">0.0%</div></div>
+        <div class="stat-card"><label>Avg KPI Company</label><div id="st_kpi" style="font-weight:800; color:var(--success)">0</div></div>
+        <div class="stat-card"><label>Revenue Factor (ROI)</label><div id="st_roi" style="font-weight:800;">0</div></div>
     </div>
 
     <div class="grid-main" style="grid-template-columns: 1fr 500px">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
-                <h2>Retention & ROI Matrix</h2>
+                <h2>Workforce ROI & Retention Matrix</h2>
                 <button class="btn btn-pdf" style="width:auto" onclick="downloadExecutivePDF()">Download Report (PDF)</button>
             </div>
             <table id="exec_table">
-                <thead><tr><th>Nama</th><th>KPI</th><th>ROI</th><th>Rekomendasi</th></tr></thead>
+                <thead><tr><th>Nama</th><th>KPI</th><th>ROI</th><th>Insight Manajemen</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
         
         <div class="card">
-            <h2>9-Box Talent Matrix</h2>
+            <h2>9-Box Talent Matrix (Auto)</h2>
             <div class="matrix-container" id="matrix_ui">
                 <div class="matrix-box"><b>Future Leader</b><span class="count-badge" id="m1">0</span></div>
-                <div class="matrix-box"><b>Star Potential</b><span class="count-badge" id="m2">0</span></div>
+                <div class="matrix-box"><b>High Potential</b><span class="count-badge" id="m2">0</span></div>
                 <div class="matrix-box box-star"><b>STAR ASSET</b><span class="count-badge" id="m3">0</span></div>
                 <div class="matrix-box"><b>Enigma</b><span class="count-badge" id="m4">0</span></div>
                 <div class="matrix-box"><b>Core Talent</b><span class="count-badge" id="m5">0</span></div>
@@ -195,11 +189,47 @@
 </div>
 
 <script>
-    // --- DATABASE TER 2024 ---
+    // --- DATABASE TER 2024 (COMPREHENSIVE) ---
+    // Update data TER sesuai dengan tabel peraturan pemerintah terbaru (A, B, C)
     const TER_DATA = {
-        'A': [[0,5400000,0], [5400000,5650000,0.0025], [5650000,5950000,0.005], [5950000,6300000,0.0075], [6300000,6750000,0.01], [6750000,7500000,0.0125], [7500000,8550000,0.015], [8550000,9650000,0.0175], [9650000,100000000,0.02]],
-        'B': [[0,6200000,0], [6200000,6500000,0.0025], [6500000,6850000,0.005], [6850000,7300000,0.0075], [7300000,9200000,0.01], [9200000,100000000,0.015]],
-        'C': [[0,6600000,0], [6600000,6950000,0.0025], [6950000,7350000,0.005], [7350000,7800000,0.0075], [7800000,100000000,0.01]]
+        'A': [
+            [0, 5400000, 0], [5400000, 5650000, 0.0025], [5650000, 5950000, 0.005], [5950000, 6300000, 0.0075], 
+            [6300000, 6750000, 0.01], [6750000, 7500000, 0.0125], [7500000, 8550000, 0.015], [8550000, 9650000, 0.0175], 
+            [9650000, 10050000, 0.02], [10050000, 10350000, 0.0225], [10350000, 10700000, 0.025], [10700000, 11050000, 0.03],
+            [11050000, 11600000, 0.035], [11600000, 12500000, 0.04], [12500000, 13750000, 0.05], [13750000, 15100000, 0.06],
+            [15100000, 16950000, 0.07], [16950000, 19750000, 0.08], [19750000, 24150000, 0.09], [24150000, 26450000, 0.10],
+            [26450000, 28000000, 0.11], [28000000, 30050000, 0.12], [30050000, 32400000, 0.13], [32400000, 35400000, 0.14],
+            [35400000, 39100000, 0.15], [39100000, 43850000, 0.16], [43850000, 47800000, 0.17], [47800000, 51400000, 0.18],
+            [51400000, 56300000, 0.19], [56300000, 62200000, 0.20], [62200000, 68600000, 0.21], [68600000, 77500000, 0.22],
+            [77500000, 89000000, 0.23], [89000000, 103000000, 0.24], [103000000, 125000000, 0.25], [125000000, 157000000, 0.26],
+            [157000000, 206000000, 0.27], [206000000, 337000000, 0.28], [337000000, 454000000, 0.29], [454000000, 550000000, 0.30],
+            [550000000, 695000000, 0.31], [695000000, 910000000, 0.32], [910000000, 1400000000, 0.33], [1400000000, 99999999999, 0.34]
+        ],
+        'B': [
+            [0, 6200000, 0], [6200000, 6500000, 0.0025], [6500000, 6850000, 0.005], [6850000, 7300000, 0.0075], 
+            [7300000, 9200000, 0.01], [9200000, 10750000, 0.015], [10750000, 11250000, 0.02], [11250000, 11600000, 0.025], 
+            [11600000, 12600000, 0.03], [12600000, 13600000, 0.04], [13600000, 14950000, 0.05], [14950000, 16400000, 0.06],
+            [16400000, 18450000, 0.07], [18450000, 21850000, 0.08], [21850000, 26000000, 0.09], [26000000, 27700000, 0.10],
+            [27700000, 29350000, 0.11], [29350000, 31450000, 0.12], [31450000, 33950000, 0.13], [33950000, 37100000, 0.14],
+            [37100000, 41100000, 0.15], [41100000, 45800000, 0.16], [45800000, 49500000, 0.17], [49500000, 53800000, 0.18],
+            [53800000, 58500000, 0.19], [58500000, 64000000, 0.20], [64000000, 71000000, 0.21], [71000000, 80000000, 0.22],
+            [80000000, 93000000, 0.23], [93000000, 109000000, 0.24], [109000000, 129000000, 0.25], [129000000, 163000000, 0.26],
+            [163000000, 211000000, 0.27], [211000000, 374000000, 0.28], [374000000, 459000000, 0.29], [459000000, 555000000, 0.30],
+            [555000000, 704000000, 0.31], [704000000, 957000000, 0.32], [957000000, 1405000000, 0.33], [1405000000, 99999999999, 0.34]
+        ],
+        'C': [
+            [0, 6600000, 0], [6600000, 6950000, 0.0025], [6950000, 7350000, 0.005], [7350000, 7800000, 0.0075], 
+            [7800000, 8850000, 0.01], [8850000, 9800000, 0.0125], [9800000, 10950000, 0.015], [10950000, 11200000, 0.0175], 
+            [11200000, 12050000, 0.02], [12050000, 12950000, 0.03], [12950000, 14150000, 0.04], [14150000, 15550000, 0.05],
+            [15550000, 17050000, 0.06], [17050000, 19500000, 0.07], [19500000, 22700000, 0.08], [22700000, 26600000, 0.09],
+            [26600000, 28100000, 0.10], [28100000, 30100000, 0.11], [30100000, 32600000, 0.12], [32600000, 35400000, 0.13],
+            [35400000, 38900000, 0.14], [38900000, 43000000, 0.15], [43000000, 47400000, 0.16], [47400000, 51200000, 0.17],
+            [51200000, 55800000, 0.18], [55800000, 60400000, 0.19], [60400000, 66700000, 0.20], [66700000, 74500000, 0.21],
+            [74500000, 83200000, 0.22], [83200000, 95600000, 0.23], [95600000, 110000000, 0.24], [110000000, 134000000, 0.25],
+            [134000000, 169000000, 0.26], [169000000, 221000000, 0.27], [221000000, 390000000, 0.28], [390000000, 463000000, 0.29],
+            [463000000, 561000000, 0.30], [561000000, 709000000, 0.31], [709000000, 965000000, 0.32], [965000000, 1419000000, 0.33],
+            [1419000000, 99999999999, 0.34]
+        ]
     };
 
     function switchTab(id) {
@@ -218,25 +248,26 @@
         const ptkp = document.getElementById('in_ptkp').value;
         const jkkRate = parseFloat(document.getElementById('in_jkk_rate').value);
         
-        // Perhitungan BPJS (Pemberi Kerja - Menambah Bruto)
         const bpjs_jkk = gapok * jkkRate;
         const bpjs_jkm = gapok * 0.003;
         const bpjs_kes_pk = Math.min(gapok + tunj, 12000000) * 0.04;
         const bruto = gapok + tunj + bpjs_jkk + bpjs_jkm + bpjs_kes_pk;
 
-        // Potongan Karyawan (Mengurangi Net)
         const pot_jht = document.getElementById('c_jht').checked ? gapok * 0.02 : 0;
         const pot_jp = document.getElementById('c_jht').checked ? Math.min(gapok, 10047970) * 0.01 : 0;
         const pot_kes = document.getElementById('c_kes').checked ? Math.min(gapok + tunj, 12000000) * 0.01 : 0;
 
-        // Kategori TER Pajak
         let cat = 'A';
         if(['TK/2','TK/3','K/0','K/1','K/2','K/I/0','K/I/1'].includes(ptkp)) cat = 'B';
         if(['K/3','K/I/2','K/I/3'].includes(ptkp)) cat = 'C';
         
         let rate = 0;
-        for(let r of TER_DATA[cat]) {
-            if(bruto >= r[0] && bruto < r[1]) { rate = r[2]; break; }
+        const currentCatData = TER_DATA[cat];
+        for(let r of currentCatData) {
+            if(bruto >= r[0] && bruto < r[1]) { 
+                rate = r[2]; 
+                break; 
+            }
         }
         
         const pajak = bruto * rate;
@@ -255,6 +286,7 @@
         db.push(data);
         localStorage.setItem('narbara_db', JSON.stringify(db));
         renderTable();
+        alert("Data Tersimpan!");
     }
 
     function renderTable() {
@@ -286,14 +318,15 @@
         
         tbody.innerHTML = db.map(i => {
             tCost += i.bruto; tKpi += i.kpi;
+            // Revenue dibagi rata per karyawan untuk simulasi ROI
             const roi = (rev / (db.length || 1)) / i.bruto;
             
             let status = "MAINTAIN"; let color = "#636e72"; let box = 5;
             
-            // Logika Matrix Berdasarkan ROI & KPI
+            // Logika Matrix & Penilaian
             if (roi > 3) {
                 if (i.kpi >= 85) { box = 3; status = "STAR ASSET"; color = "var(--success)"; }
-                else if (i.kpi >= 70) { box = 2; status = "STAR POTENTIAL"; }
+                else if (i.kpi >= 70) { box = 2; status = "HIGH POTENTIAL"; }
                 else { box = 1; status = "FUTURE LEADER"; }
             } else if (roi >= 1.5) {
                 if (i.kpi >= 85) { box = 6; status = "HIGH PROF."; }
@@ -306,15 +339,18 @@
             }
             mCount[box]++;
 
-            return `<tr><td>${i.nama}</td><td>${i.kpi}</td><td>${roi.toFixed(1)}x</td><td style="color:${color}; font-weight:bold">${status}</td></tr>`;
+            return `<tr><td><b>${i.nama}</b><br><small>${i.divisi}</small></td><td>${i.kpi}</td><td>${roi.toFixed(1)}x</td><td style="color:${color}; font-weight:bold">${status}</td></tr>`;
         }).join('');
 
         const ratio = (tCost/rev)*100;
         document.getElementById('st_cost').innerText = f(tCost);
         document.getElementById('st_ratio').innerText = ratio.toFixed(1) + "%";
-        document.getElementById('st_ratio').style.color = ratio > target ? 'red' : 'green';
+        
+        // Perbaikan: Indikator warna berubah berdasarkan target budget ratio
+        document.getElementById('st_ratio').style.color = ratio > target ? 'var(--danger)' : 'var(--success)';
+        
         document.getElementById('st_kpi').innerText = db.length ? (tKpi/db.length).toFixed(1) : 0;
-        document.getElementById('st_roi').innerText = tCost > 0 ? (rev/tCost).toFixed(1) + "x" : "0";
+        document.getElementById('st_roi').innerText = tCost > 0 ? (rev/tCost).toFixed(1) : "0";
 
         for(let j=1; j<=9; j++) document.getElementById(`m${j}`).innerText = mCount[j];
     }
@@ -357,9 +393,11 @@
     }
 
     function delData(id) {
+        if(!confirm("Hapus data ini?")) return;
         let db = JSON.parse(localStorage.getItem('narbara_db')) || [];
         localStorage.setItem('narbara_db', JSON.stringify(db.filter(x => x.id !== id)));
         renderTable();
+        if(document.getElementById('executive').classList.contains('active')) renderExecutive();
     }
 
     window.onload = renderTable;
