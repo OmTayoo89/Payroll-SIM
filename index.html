@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll - Final Rigid Payroll & Executive System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        :root {
+            --narbara-blue: #002347;
+            --narbara-gold: #c5a059;
+            --bg-light: #f4f7fa;
+            --danger: #d63031;
+            --success: #00b894;
+            --white: #ffffff;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-light); margin: 0; color: #333; }
+
+        /* Navigation */
+        .navbar { background: var(--narbara-blue); display: flex; padding: 0 50px; gap: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
+        .nav-brand { color: white; font-size: 24px; font-weight: 800; display: flex; align-items: center; margin-right: 20px; letter-spacing: 1.5px; }
+        .nav-item { color: rgba(255,255,255,0.7); padding: 25px 15px; cursor: pointer; font-weight: 600; transition: 0.3s; border-bottom: 4px solid transparent; }
+        .nav-item.active { color: white; border-bottom: 4px solid var(--narbara-gold); background: rgba(255,255,255,0.05); }
+
+        /* Layout */
+        .container { padding: 40px 50px; display: none; max-width: 1600px; margin: auto; }
+        .container.active { display: block; }
+        .grid-main { display: grid; grid-template-columns: 500px 1fr; gap: 40px; align-items: start; }
+        .card { background: var(--white); border-radius: 16px; padding: 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); margin-bottom: 35px; }
+        h2 { color: var(--narbara-blue); font-size: 18px; margin-top: 0; margin-bottom: 25px; border-left: 6px solid var(--narbara-gold); padding-left: 15px; text-transform: uppercase; }
+
+        /* Form Styling */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 10px; font-size: 14px; box-sizing: border-box; }
+        input:focus { border-color: var(--narbara-gold); outline: none; }
+
+        /* Buttons */
+        .btn { padding: 15px 25px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 13px; text-transform: uppercase; }
+        .btn-primary { background: var(--narbara-blue); color: white; width: 100%; }
+        .btn-pdf { background: #e74c3c; color: white; margin-top: 10px; }
+        .btn-outline-pdf { background: none; border: 1.5px solid #e74c3c; color: #e74c3c; padding: 6px 12px; font-size: 11px; border-radius: 6px; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; color: var(--narbara-blue); padding: 15px; text-align: left; font-size: 11px; border-bottom: 2px solid #eee; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+
+        /* 9-Box Matrix UI */
+        .matrix-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #dfe6e9; padding: 10px; border-radius: 15px; }
+        .matrix-box { background: white; height: 100px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 5px; font-size: 10px; position: relative; border: 2px solid #eee; }
+        .matrix-box b { color: var(--narbara-blue); font-size: 11px; margin-bottom: 3px; display: block; line-height: 1.2; }
+        .count-badge { position: absolute; top: 5px; right: 5px; background: var(--narbara-blue); color: white; padding: 1px 6px; border-radius: 8px; font-size: 9px; font-weight: bold; }
+        .box-star { border-color: var(--success); background: #f0fff4; }
+        .box-danger { border-color: var(--danger); background: #fff5f5; }
+
+        .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 5px solid var(--narbara-gold); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-brand">Payroll System</div>
+    <div class="nav-item active" id="tab-payroll" onclick="switchTab('payroll')">Operasional Payroll</div>
+    <div class="nav-item" id="tab-executive" onclick="switchTab('executive')">Executive Analitik</div>
+</div>
+
+<div id="payroll" class="container active">
+    <div class="grid-main">
+        <div class="sidebar">
+            <div class="card">
+                <h2>Identitas & Divisi</h2>
+                <div class="form-group"><label>Nama Lengkap</label><input type="text" id="in_nama" placeholder="Pria Ngawi"></div>
+                <div class="form-group"><label>NPWP</label><input type="text" id="in_npwp" placeholder="00.000.000.0-000.000"></div>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px">
+                    <div class="form-group"><label>Divisi (Manual)</label><input type="text" id="in_divisi" placeholder="Contoh: Finance"></div>
+                    <div class="form-group"><label>Umur</label><input type="number" id="in_umur" placeholder="Thn"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Rincian Pendapatan</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px">
+                    <div class="form-group"><label>Gaji Pokok</label><input type="number" id="in_gajipokok" value="0"></div>
+                    <div class="form-group"><label>Tunjangan Tetap</label><input type="number" id="in_tunjangan" value="0"></div>
+                </div>
+                <div class="form-group">
+                    <label>Status PTKP (Lengkap)</label>
+                    <select id="in_ptkp">
+                        <option value="TK/0">TK/0 - Tidak Kawin, 0 Tanggungan (A)</option>
+                        <option value="TK/1">TK/1 - Tidak Kawin, 1 Tanggungan (A)</option>
+                        <option value="TK/2">TK/2 - Tidak Kawin, 2 Tanggungan (B)</option>
+                        <option value="TK/3">TK/3 - Tidak Kawin, 3 Tanggungan (B)</option>
+                        <option value="K/0">K/0 - Kawin, 0 Tanggungan (A)</option>
+                        <option value="K/1">K/1 - Kawin, 1 Tanggungan (B)</option>
+                        <option value="K/2">K/2 - Kawin, 2 Tanggungan (B)</option>
+                        <option value="K/3">K/3 - Kawin, 3 Tanggungan (C)</option>
+                        <option value="K/I/0">K/I/0 - Kawin Istri Gabung, 0 Tanggungan (B)</option>
+                        <option value="K/I/1">K/I/1 - Kawin Istri Gabung, 1 Tanggungan (B)</option>
+                        <option value="K/I/2">K/I/2 - Kawin Istri Gabung, 2 Tanggungan (C)</option>
+                        <option value="K/I/3">K/I/3 - Kawin Istri Gabung, 3 Tanggungan (C)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>BPJS & KPI</h2>
+                <div class="form-group">
+                    <label>Tingkat Risiko JKK</label>
+                    <select id="in_jkk_rate">
+                        <option value="0.0024">0.24% (Sangat Rendah)</option>
+                        <option value="0.0054">0.54% (Rendah)</option>
+                        <option value="0.0089">0.89% (Sedang)</option>
+                        <option value="0.0127">1.27% (Tinggi)</option>
+                        <option value="0.0174">1.74% (Sangat Tinggi)</option>
+                    </select>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px">
+                    <div style="font-size:11px"><input type="checkbox" id="c_jht" checked> BPJS TK (JHT & JP)</div>
+                    <div style="font-size:11px"><input type="checkbox" id="c_kes" checked> BPJS Kesehatan</div>
+                </div>
+                <div class="form-group"><label>KPI Performa (0-100)</label><input type="number" id="in_kpi" value="80"></div>
+                <button class="btn btn-primary" onclick="processData()">HITUNG & SIMPAN</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <h2>Daftar Payroll Bulanan</h2>
+                <table id="main_table">
+                    <thead>
+                        <tr>
+                            <th>Karyawan/Divisi</th>
+                            <th>Bruto (TER)</th>
+                            <th>Pajak</th>
+                            <th>THP Netto</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="executive" class="container">
+    <div class="card">
+        <h2>Executive Financial Control</h2>
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:20px; align-items:end">
+            <div><label>Total Revenue Perusahaan</label><input type="number" id="ex_rev" value="1000000000"></div>
+            <div><label>Target Budget Ratio (%)</label><input type="number" id="ex_target" value="20"></div>
+            <button class="btn btn-primary" onclick="renderExecutive()">ANALYZE NOW</button>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:20px; margin-bottom:30px">
+        <div class="stat-card"><label>Total Payroll Cost</label><div id="st_cost" style="font-weight:800; color:var(--narbara-blue)">Rp 0</div></div>
+        <div class="stat-card"><label>Payroll Ratio</label><div id="st_ratio" style="font-weight:800;">0%</div></div>
+        <div class="stat-card"><label>Avg KPI</label><div id="st_kpi" style="font-weight:800; color:var(--success)">0</div></div>
+        <div class="stat-card"><label>ROI Factor</label><div id="st_roi" style="font-weight:800;">0x</div></div>
+    </div>
+
+    <div class="grid-main" style="grid-template-columns: 1fr 500px">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                <h2>Retention & ROI Matrix</h2>
+                <button class="btn btn-pdf" style="width:auto" onclick="downloadExecutivePDF()">Download Report (PDF)</button>
+            </div>
+            <table id="exec_table">
+                <thead><tr><th>Nama</th><th>KPI</th><th>ROI</th><th>Rekomendasi</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>9-Box Talent Matrix</h2>
+            <div class="matrix-container" id="matrix_ui">
+                <div class="matrix-box"><b>Future Leader</b><span class="count-badge" id="m1">0</span></div>
+                <div class="matrix-box"><b>Star Potential</b><span class="count-badge" id="m2">0</span></div>
+                <div class="matrix-box box-star"><b>STAR ASSET</b><span class="count-badge" id="m3">0</span></div>
+                <div class="matrix-box"><b>Enigma</b><span class="count-badge" id="m4">0</span></div>
+                <div class="matrix-box"><b>Core Talent</b><span class="count-badge" id="m5">0</span></div>
+                <div class="matrix-box"><b>High Prof.</b><span class="count-badge" id="m6">0</span></div>
+                <div class="matrix-box box-danger"><b>DANGER ZONE</b><span class="count-badge" id="m7">0</span></div>
+                <div class="matrix-box"><b>Underperformer</b><span class="count-badge" id="m8">0</span></div>
+                <div class="matrix-box"><b>Solid Performer</b><span class="count-badge" id="m9">0</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- DATABASE TER 2024 ---
+    const TER_DATA = {
+        'A': [[0,5400000,0], [5400000,5650000,0.0025], [5650000,5950000,0.005], [5950000,6300000,0.0075], [6300000,6750000,0.01], [6750000,7500000,0.0125], [7500000,8550000,0.015], [8550000,9650000,0.0175], [9650000,100000000,0.02]],
+        'B': [[0,6200000,0], [6200000,6500000,0.0025], [6500000,6850000,0.005], [6850000,7300000,0.0075], [7300000,9200000,0.01], [9200000,100000000,0.015]],
+        'C': [[0,6600000,0], [6600000,6950000,0.0025], [6950000,7350000,0.005], [7350000,7800000,0.0075], [7800000,100000000,0.01]]
+    };
+
+    function switchTab(id) {
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('tab-' + id).classList.add('active');
+        if(id === 'executive') renderExecutive();
+    }
+
+    function processData() {
+        const nama = document.getElementById('in_nama').value;
+        const divisi = document.getElementById('in_divisi').value;
+        const gapok = parseFloat(document.getElementById('in_gajipokok').value) || 0;
+        const tunj = parseFloat(document.getElementById('in_tunjangan').value) || 0;
+        const ptkp = document.getElementById('in_ptkp').value;
+        const jkkRate = parseFloat(document.getElementById('in_jkk_rate').value);
+        
+        // Perhitungan BPJS (Pemberi Kerja - Menambah Bruto)
+        const bpjs_jkk = gapok * jkkRate;
+        const bpjs_jkm = gapok * 0.003;
+        const bpjs_kes_pk = Math.min(gapok + tunj, 12000000) * 0.04;
+        const bruto = gapok + tunj + bpjs_jkk + bpjs_jkm + bpjs_kes_pk;
+
+        // Potongan Karyawan (Mengurangi Net)
+        const pot_jht = document.getElementById('c_jht').checked ? gapok * 0.02 : 0;
+        const pot_jp = document.getElementById('c_jht').checked ? Math.min(gapok, 10047970) * 0.01 : 0;
+        const pot_kes = document.getElementById('c_kes').checked ? Math.min(gapok + tunj, 12000000) * 0.01 : 0;
+
+        // Kategori TER Pajak
+        let cat = 'A';
+        if(['TK/2','TK/3','K/0','K/1','K/2','K/I/0','K/I/1'].includes(ptkp)) cat = 'B';
+        if(['K/3','K/I/2','K/I/3'].includes(ptkp)) cat = 'C';
+        
+        let rate = 0;
+        for(let r of TER_DATA[cat]) {
+            if(bruto >= r[0] && bruto < r[1]) { rate = r[2]; break; }
+        }
+        
+        const pajak = bruto * rate;
+        const thp = (gapok + tunj) - pajak - pot_jht - pot_jp - pot_kes; 
+
+        const data = {
+            id: Date.now(),
+            nama, divisi, npwp: document.getElementById('in_npwp').value,
+            gapok, tunj, jkk: bpjs_jkk, jkm: bpjs_jkm, kes_pk: bpjs_kes_pk,
+            pajak, potongan: pot_jht + pot_jp + pot_kes,
+            bruto, thp, kpi: parseFloat(document.getElementById('in_kpi').value) || 0
+        };
+
+        if(!nama) return alert("Nama harus diisi!");
+        let db = JSON.parse(localStorage.getItem('narbara_db')) || [];
+        db.push(data);
+        localStorage.setItem('narbara_db', JSON.stringify(db));
+        renderTable();
+    }
+
+    function renderTable() {
+        const db = JSON.parse(localStorage.getItem('narbara_db')) || [];
+        const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+        const tbody = document.querySelector('#main_table tbody');
+        tbody.innerHTML = db.slice(-10).reverse().map(i => `
+            <tr>
+                <td><b>${i.nama}</b><br><small>${i.divisi}</small></td>
+                <td>${f(i.bruto)}</td>
+                <td style="color:red">${f(i.pajak)}</td>
+                <td><b style="color:green">${f(i.thp)}</b></td>
+                <td>
+                    <button class="btn-outline-pdf" onclick="downloadSlipPDF(${i.id})">Slip PDF</button>
+                    <button onclick="delData(${i.id})" style="border:none; color:red; cursor:pointer; background:none; margin-left:10px">×</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderExecutive() {
+        const db = JSON.parse(localStorage.getItem('narbara_db')) || [];
+        const rev = parseFloat(document.getElementById('ex_rev').value) || 1;
+        const target = parseFloat(document.getElementById('ex_target').value) || 20;
+        const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+        
+        let tCost = 0, tKpi = 0, mCount = new Array(10).fill(0);
+        const tbody = document.querySelector('#exec_table tbody');
+        
+        tbody.innerHTML = db.map(i => {
+            tCost += i.bruto; tKpi += i.kpi;
+            const roi = (rev / (db.length || 1)) / i.bruto;
+            
+            let status = "MAINTAIN"; let color = "#636e72"; let box = 5;
+            
+            // Logika Matrix Berdasarkan ROI & KPI
+            if (roi > 3) {
+                if (i.kpi >= 85) { box = 3; status = "STAR ASSET"; color = "var(--success)"; }
+                else if (i.kpi >= 70) { box = 2; status = "STAR POTENTIAL"; }
+                else { box = 1; status = "FUTURE LEADER"; }
+            } else if (roi >= 1.5) {
+                if (i.kpi >= 85) { box = 6; status = "HIGH PROF."; }
+                else if (i.kpi >= 70) { box = 5; status = "CORE TALENT"; }
+                else { box = 4; status = "ENIGMA"; }
+            } else {
+                if (i.kpi >= 85) { box = 9; status = "SOLID PERFORMER"; }
+                else if (i.kpi >= 70) { box = 8; status = "UNDERPERFORMER"; }
+                else { box = 7; status = "DANGER ZONE"; color = "var(--danger)"; }
+            }
+            mCount[box]++;
+
+            return `<tr><td>${i.nama}</td><td>${i.kpi}</td><td>${roi.toFixed(1)}x</td><td style="color:${color}; font-weight:bold">${status}</td></tr>`;
+        }).join('');
+
+        const ratio = (tCost/rev)*100;
+        document.getElementById('st_cost').innerText = f(tCost);
+        document.getElementById('st_ratio').innerText = ratio.toFixed(1) + "%";
+        document.getElementById('st_ratio').style.color = ratio > target ? 'red' : 'green';
+        document.getElementById('st_kpi').innerText = db.length ? (tKpi/db.length).toFixed(1) : 0;
+        document.getElementById('st_roi').innerText = tCost > 0 ? (rev/tCost).toFixed(1) + "x" : "0";
+
+        for(let j=1; j<=9; j++) document.getElementById(`m${j}`).innerText = mCount[j];
+    }
+
+    async function downloadSlipPDF(id) {
+        const db = JSON.parse(localStorage.getItem('narbara_db')) || [];
+        const item = db.find(x => x.id === id);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(n);
+
+        doc.setFont("helvetica", "bold"); doc.text("SLIP GAJI KARYAWAN", 105, 20, { align: 'center' });
+        doc.setFontSize(10); doc.text("NARBARA ENTERPRISE", 105, 27, { align: 'center' });
+        doc.line(20, 32, 190, 32);
+
+        doc.text(`Nama : ${item.nama}`, 20, 42);
+        doc.text(`Divisi : ${item.divisi}`, 20, 48);
+        doc.text(`NPWP : ${item.npwp}`, 20, 54);
+
+        const data = [
+            ["Item Pendapatan", "Nilai"],
+            ["Gaji Pokok", f(item.gapok)],
+            ["Tunjangan Tetap", f(item.tunj)],
+            ["Premi JKK/JKM (Perusahaan)", f(item.jkk + item.jkm)],
+            ["Pajak PPh 21 (TER)", `- ${f(item.pajak)}`],
+            ["Potongan BPJS (Karyawan)", `- ${f(item.potongan)}`],
+            ["TAKE HOME PAY (NET)", f(item.thp)]
+        ];
+
+        doc.autoTable({ startY: 65, head: [data[0]], body: data.slice(1), theme: 'grid', headStyles: {fillColor: [0, 35, 71]} });
+        doc.save(`Slip_${item.nama}.pdf`);
+    }
+
+    function downloadExecutivePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("EXECUTIVE PAYROLL REPORT - NARBARA", 105, 20, { align: 'center' });
+        doc.autoTable({ html: '#exec_table', startY: 30, theme: 'striped' });
+        doc.save('Executive_Analysis.pdf');
+    }
+
+    function delData(id) {
+        let db = JSON.parse(localStorage.getItem('narbara_db')) || [];
+        localStorage.setItem('narbara_db', JSON.stringify(db.filter(x => x.id !== id)));
+        renderTable();
+    }
+
+    window.onload = renderTable;
+</script>
+</body>
+</html>
